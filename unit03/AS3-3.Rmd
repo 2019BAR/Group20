@@ -47,46 +47,41 @@ pacman::p_load(dplyr)
 
 __§ 1.1__ How many interviewees are in the dataset?
 ```{r}
-#
-#
+D = read.csv("data/CPSData.csv", stringsAsFactors=F)
+nrow(D)
 ```
 
 __§ 1.2__ Among the interviewees with a value reported for the Industry variable, what is the most common industry of employment? Please enter the name exactly how you see it.
 ```{r}
-#
-#
+which.max(table(D$Industry))
 ```
 
 __§ 1.3__ Which state has the fewest interviewees?
 ```{r}
-#
-#
+which.min(table(D$State))
 ```
 
 Which state has the largest number of interviewees?
 ```{r}
-#
-#
+which.max(table(D$State))
 ```
 
 __§ 1.4__ What proportion of interviewees are citizens of the United States?
 ```{r}
-#
-#
+nrow(subset(D, !Citizenship == "Non-Citizen")) / nrow(D) 
 ```
 
 __§ 1.5__ For which races are there at least 250 interviewees in the CPS dataset of Hispanic ethnicity? (Select all that apply.) 
 
 + American Indian
 + Asian
-+ cBlack
++ Black
 + Multiracial
 + Pacific Islander
 + White
 
 ```{r}
-#
-#
+table(subset(D, Hispanic == 1L, Race)) >250
 ```
 
 <br><br> 
@@ -113,8 +108,7 @@ __§ 2.1__ Which variables have at least one interviewee with a missing (NA) val
 + Industry
 
 ```{r}
-#
-#
+colnames(D)[colSums(is.na(D)) > 0]
 ```
 
 __§ 2.2__  Which is the most accurate:
@@ -126,27 +120,32 @@ __§ 2.2__  Which is the most accurate:
 + The Married variable being missing is not related to the Region, Sex, Age, or Citizenship value for the interviewee.
 
 ```{r}
-#
-#
+table(is.na(D))
+table(D$Region, is.na(D$Married))
+table(D$Sex, is.na(D$Married))
+table(D$Age, is.na(D$Married))
+table(D$Citizenship, is.na(D$Married))
+#答: The Married variable being missing is related to the Age value for the interviewee.
+#由數據分析可推測Married資料缺失與Age較有關聯，因為此採訪並無紀錄低於14歲的受訪者之婚姻狀況。
 ```
 
 
 __§ 2.3__ How many states had all interviewees living in a non-metropolitan area (aka they have a missing MetroAreaCode value)? For this question, treat the District of Columbia as a state (even though it is not technically a state).
 ```{r}
-#
-#
+table(D$State, is.na(D$MetroAreaCode))
+#答: 2(Alaska, Wyoming)
 ```
 
 How many states had all interviewees living in a metropolitan area? Again, treat the District of Columbia as a state.
 ```{r}
-#
-#
+table(D$State, is.na(D$MetroAreaCode))
+#答: 3(District of Columbia, New Jersey, Rhode Island)
 ```
 
 __§ 2.4__ Which region of the United States has the largest proportion of interviewees living in a non-metropolitan area?
 ```{r}
-#
-#
+prop.table(table(D$Region,is.na(D$MetroAreaCode)),1)
+#答: Midwest(34.8%)
 ```
 
 __§ 2.5__ Which state has a proportion of interviewees living in a non-metropolitan area closest to 30%?
