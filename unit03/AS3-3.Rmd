@@ -195,17 +195,18 @@ sum(is.na(D$MetroArea))
 
 __§ 3.3__ Which of the following metropolitan areas has the largest number of interviewees?
 ```{r}
-
+which.max(table(D$MetroArea))
 ```
 
 __§ 3.4__ Which metropolitan area has the highest proportion of interviewees of Hispanic ethnicity?
 ```{r}
-
+head(sort(tapply(D$Hispanic, D$MetroArea, mean),decreasing = T))
 ```
 
 __§ 3.5__ Determine the number of metropolitan areas in the United States from which at least 20% of interviewees are Asian.
 ```{r}
-
+head(sort(tapply(D$Race == "Asian" , D$MetroArea , mean), decreasing = T))
+#答: 4(Honolulu, San Francisco-Oakland-Fremont, Jose-Sunnyvale-Santa Clara, Vallejo-Fairfield)
 ```
 
 __§ 3.6__  Passing na.rm=TRUE to the tapply function, determine which metropolitan area has the smallest proportion of interviewees who have received no high school diploma.

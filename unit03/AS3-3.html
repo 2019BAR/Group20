@@ -235,7 +235,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">AS3-3: 美國的人口統計和就業資料</h1>
 <h4 class="author"><em>第 0 組</em></h4>
-<h4 class="date"><em>2019-03-09 21:23:20</em></h4>
+<h4 class="date"><em>2019-03-09 21:52:08</em></h4>
 
 </div>
 
@@ -632,8 +632,24 @@ $(document).ready(function () {
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sum</span>(<span class="kw">is.na</span>(D<span class="op">$</span>MetroArea))</code></pre></div>
 <pre><code>[1] 34238</code></pre>
 <p><strong>§ 3.3</strong> Which of the following metropolitan areas has the largest number of interviewees?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">which.max</span>(<span class="kw">table</span>(D<span class="op">$</span>MetroArea))</code></pre></div>
+<pre><code>New York-Northern New Jersey-Long Island, NY-NJ-PA 
+                                               173 </code></pre>
 <p><strong>§ 3.4</strong> Which metropolitan area has the highest proportion of interviewees of Hispanic ethnicity?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">sort</span>(<span class="kw">tapply</span>(D<span class="op">$</span>Hispanic, D<span class="op">$</span>MetroArea, mean),<span class="dt">decreasing =</span> T))</code></pre></div>
+<pre><code>                Laredo, TX McAllen-Edinburg-Pharr, TX  Brownsville-Harlingen, TX 
+                    0.9663                     0.9487                     0.7975 
+               El Paso, TX              El Centro, CA            San Antonio, TX 
+                    0.7910                     0.6869                     0.6442 </code></pre>
 <p><strong>§ 3.5</strong> Determine the number of metropolitan areas in the United States from which at least 20% of interviewees are Asian.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">sort</span>(<span class="kw">tapply</span>(D<span class="op">$</span>Race <span class="op">==</span><span class="st"> &quot;Asian&quot;</span> , D<span class="op">$</span>MetroArea , mean), <span class="dt">decreasing =</span> T))</code></pre></div>
+<pre><code>                      Honolulu, HI  San Francisco-Oakland-Fremont, CA 
+                            0.5019                             0.2468 
+San Jose-Sunnyvale-Santa Clara, CA              Vallejo-Fairfield, CA 
+                            0.2418                             0.2030 
+                        Fresno, CA                  Warner Robins, GA 
+                            0.1848                             0.1667 </code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#答: 4(Honolulu, San Francisco-Oakland-Fremont, Jose-Sunnyvale-Santa Clara, Vallejo-Fairfield)</span></code></pre></div>
 <p><strong>§ 3.6</strong> Passing na.rm=TRUE to the tapply function, determine which metropolitan area has the smallest proportion of interviewees who have received no high school diploma.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
 <span class="co">#</span></code></pre></div>
