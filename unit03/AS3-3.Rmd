@@ -150,8 +150,7 @@ prop.table(table(D$Region,is.na(D$MetroAreaCode)),1)
 
 __§ 2.5__ Which state has a proportion of interviewees living in a non-metropolitan area closest to 30%?
 ```{r}
-#
-#
+prop.table(table(D$Region,is.na(D$MetroAreaCode)),1)
 ```
 
 Which state has the largest proportion of non-metropolitan interviewees, ignoring states where all interviewees were non-metropolitan?
