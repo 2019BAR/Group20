@@ -82,6 +82,7 @@ __§ 1.5__ For which races are there at least 250 interviewees in the CPS datase
 
 ```{r}
 table(subset(D, Hispanic == 1L, Race)) >250
+#答: American Indian, Black, Multiracial, White 
 ```
 
 <br><br> 
@@ -126,7 +127,7 @@ table(D$Sex, is.na(D$Married))
 table(D$Age, is.na(D$Married))
 table(D$Citizenship, is.na(D$Married))
 #答: The Married variable being missing is related to the Age value for the interviewee.
-#由數據分析可推測Married資料缺失與Age較有關聯，因為此採訪並無紀錄低於14歲的受訪者之婚姻狀況。
+#由數據分析可推測Married資料缺失與Age較有關聯，因為此採訪沒有紀錄低於14歲的受訪者之婚姻狀況。
 ```
 
 
@@ -148,15 +149,18 @@ prop.table(table(D$Region,is.na(D$MetroAreaCode)),1)
 #答: Midwest(34.8%)
 ```
 
+
 __§ 2.5__ Which state has a proportion of interviewees living in a non-metropolitan area closest to 30%?
 ```{r}
-prop.table(table(D$Region,is.na(D$MetroAreaCode)),1)
+#prop.table(table(D$State,is.na(D$MetroAreaCode)),1)
+sort(tapply(is.na(D$MetroAreaCode), D$State, mean),decreasing = F)
+#答: Wisconsin(29.9%)
 ```
 
 Which state has the largest proportion of non-metropolitan interviewees, ignoring states where all interviewees were non-metropolitan?
 ```{r}
-#
-#
+head(sort(tapply(is.na(D$MetroAreaCode), D$State, mean),decreasing = T))
+#答: Montana(83.6%)
 ```
 
 <br><br> 
@@ -167,44 +171,41 @@ Which state has the largest proportion of non-metropolitan interviewees, ignorin
 
 __§ 3.1__ How many observations (codes for metropolitan areas) are there in MetroAreaMap?
 ```{r}
-#
-#
+MetroAreaMap = read.csv("data/MetroAreaCodes.csv")
+nrow(MetroAreaMap)
 ```
 
 How many observations (codes for countries) are there in CountryMap?
 ```{r}
-#
-#
+CountryMap = read.csv("data/CountryCodes.csv")
+nrow(CountryMap)
 ```
 
 __§ 3.2__ What is the name of the variable that was added to the data frame by the merge() operation?
 ```{r}
-#
-#
+D = merge(D, MetroAreaMap, by.x="MetroAreaCode", by.y="Code", all.x=TRUE)
+str(D)
+#答: MetroArea
 ```
 
 How many interviewees have a missing value for the new metropolitan area variable?
 ```{r}
-#
-#
+sum(is.na(D$MetroArea))
 ```
 
 __§ 3.3__ Which of the following metropolitan areas has the largest number of interviewees?
 ```{r}
-#
-#
+
 ```
 
 __§ 3.4__ Which metropolitan area has the highest proportion of interviewees of Hispanic ethnicity?
 ```{r}
-#
-#
+
 ```
 
 __§ 3.5__ Determine the number of metropolitan areas in the United States from which at least 20% of interviewees are Asian.
 ```{r}
-#
-#
+
 ```
 
 __§ 3.6__  Passing na.rm=TRUE to the tapply function, determine which metropolitan area has the smallest proportion of interviewees who have received no high school diploma.

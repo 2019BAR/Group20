@@ -235,7 +235,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">AS3-3: 美國的人口統計和就業資料</h1>
 <h4 class="author"><em>第 0 組</em></h4>
-<h4 class="date"><em>2019-03-09 17:12:09</em></h4>
+<h4 class="date"><em>2019-03-09 21:23:20</em></h4>
 
 </div>
 
@@ -296,6 +296,7 @@ $(document).ready(function () {
             TRUE            FALSE             TRUE             TRUE            FALSE 
            White 
             TRUE </code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#答: American Indian, Black, Multiracial, White </span></code></pre></div>
 <p><br><br></p>
 <hr />
 </div>
@@ -437,7 +438,7 @@ $(document).ready(function () {
   Citizen, Naturalized  6910   163
   Non-Citizen           7098   492</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#答: The Married variable being missing is related to the Age value for the interviewee.</span>
-<span class="co">#由數據分析可推測Married資料缺失與Age較有關聯，因為此採訪並無紀錄低於14歲的受訪者之婚姻狀況。</span></code></pre></div>
+<span class="co">#由數據分析可推測Married資料缺失與Age較有關聯，因為此採訪沒有紀錄低於14歲的受訪者之婚姻狀況。</span></code></pre></div>
 <p><strong>§ 2.3</strong> How many states had all interviewees living in a non-metropolitan area (aka they have a missing MetroAreaCode value)? For this question, treat the District of Columbia as a state (even though it is not technically a state).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(D<span class="op">$</span>State, <span class="kw">is.na</span>(D<span class="op">$</span>MetroAreaCode))</code></pre></div>
 <pre><code>                      
@@ -560,42 +561,79 @@ $(document).ready(function () {
   West      0.7563 0.2437</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#答: Midwest(34.8%)</span></code></pre></div>
 <p><strong>§ 2.5</strong> Which state has a proportion of interviewees living in a non-metropolitan area closest to 30%?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.table</span>(<span class="kw">table</span>(D<span class="op">$</span>Region,<span class="kw">is.na</span>(D<span class="op">$</span>MetroAreaCode)),<span class="dv">1</span>)</code></pre></div>
-<pre><code>           
-             FALSE   TRUE
-  Midwest   0.6521 0.3479
-  Northeast 0.7838 0.2162
-  South     0.7622 0.2378
-  West      0.7563 0.2437</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#prop.table(table(D$State,is.na(D$MetroAreaCode)),1)</span>
+<span class="kw">sort</span>(<span class="kw">tapply</span>(<span class="kw">is.na</span>(D<span class="op">$</span>MetroAreaCode), D<span class="op">$</span>State, mean),<span class="dt">decreasing =</span> F)</code></pre></div>
+<pre><code>District of Columbia           New Jersey         Rhode Island           California 
+             0.00000              0.00000              0.00000              0.02048 
+             Florida        Massachusetts             Maryland             New York 
+             0.03923              0.06492              0.06938              0.08061 
+         Connecticut             Illinois             Colorado              Arizona 
+             0.08568              0.11222              0.12991              0.13154 
+              Nevada                Texas            Louisiana         Pennsylvania 
+             0.13308              0.14370              0.16138              0.17430 
+            Michigan           Washington              Georgia             Virginia 
+             0.17826              0.18132              0.19843              0.19844 
+                Utah               Oregon             Delaware           New Mexico 
+             0.21010              0.21822              0.23397              0.24501 
+              Hawaii                 Ohio              Alabama              Indiana 
+             0.24917              0.25122              0.25872              0.29142 
+           Wisconsin       South Carolina            Minnesota             Oklahoma 
+             0.29933              0.31303              0.31507              0.32764 
+            Missouri            Tennessee               Kansas       North Carolina 
+             0.32867              0.35594              0.36227              0.37304 
+                Iowa             Arkansas                Idaho             Kentucky 
+             0.48695              0.49050              0.49868              0.50679 
+       New Hampshire             Nebraska                Maine              Vermont 
+             0.56875              0.58132              0.59832              0.65238 
+         Mississippi         South Dakota         North Dakota        West Virginia 
+             0.69431              0.70250              0.73739              0.75586 
+             Montana               Alaska              Wyoming 
+             0.83608              1.00000              1.00000 </code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#答: Wisconsin(29.9%)</span></code></pre></div>
 <p>Which state has the largest proportion of non-metropolitan interviewees, ignoring states where all interviewees were non-metropolitan?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">sort</span>(<span class="kw">tapply</span>(<span class="kw">is.na</span>(D<span class="op">$</span>MetroAreaCode), D<span class="op">$</span>State, mean),<span class="dt">decreasing =</span> T))</code></pre></div>
+<pre><code>       Alaska       Wyoming       Montana West Virginia  North Dakota  South Dakota 
+       1.0000        1.0000        0.8361        0.7559        0.7374        0.7025 </code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#答: Montana(83.6%)</span></code></pre></div>
 <p><br><br></p>
 <hr />
 </div>
 <div id="section-3-integrating-metropolitan-area-data" class="section level3">
 <h3>Section-3 Integrating Metropolitan Area Data</h3>
 <p><strong>§ 3.1</strong> How many observations (codes for metropolitan areas) are there in MetroAreaMap?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">MetroAreaMap =<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/MetroAreaCodes.csv&quot;</span>)
+<span class="kw">nrow</span>(MetroAreaMap)</code></pre></div>
+<pre><code>[1] 271</code></pre>
 <p>How many observations (codes for countries) are there in CountryMap?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">CountryMap =<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/CountryCodes.csv&quot;</span>)
+<span class="kw">nrow</span>(CountryMap)</code></pre></div>
+<pre><code>[1] 149</code></pre>
 <p><strong>§ 3.2</strong> What is the name of the variable that was added to the data frame by the merge() operation?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">D =<span class="st"> </span><span class="kw">merge</span>(D, MetroAreaMap, <span class="dt">by.x=</span><span class="st">&quot;MetroAreaCode&quot;</span>, <span class="dt">by.y=</span><span class="st">&quot;Code&quot;</span>, <span class="dt">all.x=</span><span class="ot">TRUE</span>)
+<span class="kw">str</span>(D)</code></pre></div>
+<pre><code>'data.frame':   131302 obs. of  15 variables:
+ $ MetroAreaCode     : int  10420 10420 10420 10420 10420 10420 10420 10420 10420 10420 ...
+ $ PeopleInHousehold : int  4 4 2 4 1 3 4 4 2 3 ...
+ $ Region            : chr  &quot;Midwest&quot; &quot;Midwest&quot; &quot;Midwest&quot; &quot;Midwest&quot; ...
+ $ State             : chr  &quot;Ohio&quot; &quot;Ohio&quot; &quot;Ohio&quot; &quot;Ohio&quot; ...
+ $ Age               : int  2 9 73 40 63 19 30 6 60 32 ...
+ $ Married           : chr  NA NA &quot;Married&quot; &quot;Married&quot; ...
+ $ Sex               : chr  &quot;Male&quot; &quot;Male&quot; &quot;Female&quot; &quot;Female&quot; ...
+ $ Education         : chr  NA NA &quot;Some college, no degree&quot; &quot;High school&quot; ...
+ $ Race              : chr  &quot;White&quot; &quot;White&quot; &quot;White&quot; &quot;White&quot; ...
+ $ Hispanic          : int  0 0 0 0 0 0 0 1 0 0 ...
+ $ CountryOfBirthCode: int  57 57 57 362 57 57 203 57 57 57 ...
+ $ Citizenship       : chr  &quot;Citizen, Native&quot; &quot;Citizen, Native&quot; &quot;Citizen, Native&quot; &quot;Citizen, Naturalized&quot; ...
+ $ EmploymentStatus  : chr  NA NA &quot;Retired&quot; &quot;Not in Labor Force&quot; ...
+ $ Industry          : chr  NA NA NA NA ...
+ $ MetroArea         : Factor w/ 271 levels &quot;Akron, OH&quot;,&quot;Albany-Schenectady-Troy, NY&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#答: MetroArea</span></code></pre></div>
 <p>How many interviewees have a missing value for the new metropolitan area variable?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sum</span>(<span class="kw">is.na</span>(D<span class="op">$</span>MetroArea))</code></pre></div>
+<pre><code>[1] 34238</code></pre>
 <p><strong>§ 3.3</strong> Which of the following metropolitan areas has the largest number of interviewees?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
 <p><strong>§ 3.4</strong> Which metropolitan area has the highest proportion of interviewees of Hispanic ethnicity?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
 <p><strong>§ 3.5</strong> Determine the number of metropolitan areas in the United States from which at least 20% of interviewees are Asian.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
 <p><strong>§ 3.6</strong> Passing na.rm=TRUE to the tapply function, determine which metropolitan area has the smallest proportion of interviewees who have received no high school diploma.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
 <span class="co">#</span></code></pre></div>
