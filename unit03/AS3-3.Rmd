@@ -243,42 +243,42 @@ summary(D)
 ```
 
 __§ 4.2__ Among all interviewees born outside of North America, which country was the most common place of birth?
-#Philippines
+#答:Philippines
 ```{r}
-#
+
 head(sort(table(D$Country),decreasing=T))
-#
+
 ```
 
 __§ 4.3__ What proportion of the interviewees from the "New York-Northern New Jersey-Long Island, NY-NJ-PA" metropolitan area have a country of birth that is not the United States? 
-#1688/(1668+3736)=0.309
+#答:1688/(1668+3736)=0.309
 ```{r}
-#
+
 table(D$MetroArea =="New York-Northern New Jersey-Long Island, NY-NJ-PA", D$Country!="United States")
-#
+
 ```
 
 __§ 4.4__ Which metropolitan area has the largest number (note -- not proportion) of interviewees with a country of birth in India? 
-#New York-Northern New Jersey-Long Island, NY-NJ-PA
+#答:New York-Northern New Jersey-Long Island, NY-NJ-PA
 ```{r}
-#
+
 head(sort(tapply(D$Country == "India", D$MetroArea, sum, na.rm=TRUE),decreasing = T))
-#
+
 ```
 
 In Brazil?
-#Boston-Cambridge-Quincy, MA-NH
+#答:Boston-Cambridge-Quincy, MA-NH
 ```{r}
-#
+
 head(sort(tapply(D$Country == "Brazil", D$MetroArea, sum, na.rm=TRUE),decreasing = T))
-#
+
 ```
 
 In Somalia?
-#Minneapolis-St Paul-Bloomington, MN-WI
+#答:Minneapolis-St Paul-Bloomington, MN-WI
 ```{r}
 head(sort(tapply(D$Country == "Somalia", D$MetroArea, sum, na.rm=TRUE),decreasing = T))
-#
+
 ```
 
 <br><br><br>
