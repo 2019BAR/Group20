@@ -1,6 +1,6 @@
 ---
 title: "AS3-3: 美國的人口統計和就業資料"
-author: "第 0 組"
+author: "第 20 組"
 date: "`r Sys.time()`"
 output: 
   html_document:
@@ -225,46 +225,59 @@ head(sort(tapply(D$Education == "No high school diploma", D$MetroArea, mean, na.
 
 __§ 4.1__ What is the name of the variable added to the CPS data frame by this merge operation?
 ```{r}
+str(D)
+```
+
+```{r}
 #
 D<-merge(D, CountryMap, by.x="CountryOfBirthCode", by.y="Code", all.x=TRUE)
-summary(CPS)
+summary(D)
 #新加上去的變數是Country
 ```
 
 How many interviewees have a missing value for the new metropolitan area variable?
 ```{r}
 #
-summary(CPS)
+summary(D)
 #Country欄有176筆NA值
 ```
 
 __§ 4.2__ Among all interviewees born outside of North America, which country was the most common place of birth?
+#Philippines
 ```{r}
 #
+head(sort(table(D$Country),decreasing=T))
 #
 ```
 
 __§ 4.3__ What proportion of the interviewees from the "New York-Northern New Jersey-Long Island, NY-NJ-PA" metropolitan area have a country of birth that is not the United States? 
+#1688/(1668+3736)=0.309
 ```{r}
 #
+table(D$MetroArea =="New York-Northern New Jersey-Long Island, NY-NJ-PA", D$Country!="United States")
 #
 ```
 
 __§ 4.4__ Which metropolitan area has the largest number (note -- not proportion) of interviewees with a country of birth in India? 
+#New York-Northern New Jersey-Long Island, NY-NJ-PA
 ```{r}
 #
+head(sort(tapply(D$Country == "India", D$MetroArea, sum, na.rm=TRUE),decreasing = T))
 #
 ```
 
 In Brazil?
+#Boston-Cambridge-Quincy, MA-NH
 ```{r}
 #
+head(sort(tapply(D$Country == "Brazil", D$MetroArea, sum, na.rm=TRUE),decreasing = T))
 #
 ```
 
 In Somalia?
+#Minneapolis-St Paul-Bloomington, MN-WI
 ```{r}
-#
+head(sort(tapply(D$Country == "Somalia", D$MetroArea, sum, na.rm=TRUE),decreasing = T))
 #
 ```
 
