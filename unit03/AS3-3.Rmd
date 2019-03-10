@@ -212,7 +212,8 @@ head(sort(tapply(D$Race == "Asian" , D$MetroArea , mean), decreasing = T))
 __§ 3.6__  Passing na.rm=TRUE to the tapply function, determine which metropolitan area has the smallest proportion of interviewees who have received no high school diploma.
 ```{r}
 #
-#
+head(sort(tapply(D$Education == "No high school diploma", D$MetroArea, mean, na.rm = T)))
+# Iowa City, IA
 ```
 
 
@@ -225,13 +226,16 @@ __§ 3.6__  Passing na.rm=TRUE to the tapply function, determine which metropoli
 __§ 4.1__ What is the name of the variable added to the CPS data frame by this merge operation?
 ```{r}
 #
-#
+D<-merge(D, CountryMap, by.x="CountryOfBirthCode", by.y="Code", all.x=TRUE)
+summary(CPS)
+#新加上去的變數是Country
 ```
 
 How many interviewees have a missing value for the new metropolitan area variable?
 ```{r}
 #
-#
+summary(CPS)
+#Country欄有176筆NA值
 ```
 
 __§ 4.2__ Among all interviewees born outside of North America, which country was the most common place of birth?
