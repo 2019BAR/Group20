@@ -9,7 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="author" content="第 0 組" />
+<meta name="author" content="第 20 組" />
 
 
 <title>AS3-3: 美國的人口統計和就業資料</title>
@@ -234,8 +234,8 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">AS3-3: 美國的人口統計和就業資料</h1>
-<h4 class="author"><em>第 0 組</em></h4>
-<h4 class="date"><em>2019-03-09 21:52:08</em></h4>
+<h4 class="author"><em>第 20 組</em></h4>
+<h4 class="date"><em>2019-03-10 23:14:07</em></h4>
 
 </div>
 
@@ -652,33 +652,170 @@ San Jose-Sunnyvale-Santa Clara, CA              Vallejo-Fairfield, CA
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#答: 4(Honolulu, San Francisco-Oakland-Fremont, Jose-Sunnyvale-Santa Clara, Vallejo-Fairfield)</span></code></pre></div>
 <p><strong>§ 3.6</strong> Passing na.rm=TRUE to the tapply function, determine which metropolitan area has the smallest proportion of interviewees who have received no high school diploma.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
+<span class="kw">head</span>(<span class="kw">sort</span>(<span class="kw">tapply</span>(D<span class="op">$</span>Education <span class="op">==</span><span class="st"> &quot;No high school diploma&quot;</span>, D<span class="op">$</span>MetroArea, mean, <span class="dt">na.rm =</span> T)))</code></pre></div>
+<pre><code>           Iowa City, IA        Bowling Green, KY    Kalamazoo-Portage, MI 
+                 0.02913                  0.03704                  0.05051 
+    Champaign-Urbana, IL Bremerton-Silverdale, WA             Lawrence, KS 
+                 0.05155                  0.05405                  0.05952 </code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Iowa City, IA</span></code></pre></div>
 <p><br><br></p>
 <hr />
 </div>
 <div id="section-4-integrating-country-of-birth-data" class="section level3">
 <h3>Section-4 Integrating Country of Birth Data</h3>
 <p><strong>§ 4.1</strong> What is the name of the variable added to the CPS data frame by this merge operation?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(D)</code></pre></div>
+<pre><code>'data.frame':   131302 obs. of  15 variables:
+ $ MetroAreaCode     : int  10420 10420 10420 10420 10420 10420 10420 10420 10420 10420 ...
+ $ PeopleInHousehold : int  4 4 2 4 1 3 4 4 2 3 ...
+ $ Region            : chr  &quot;Midwest&quot; &quot;Midwest&quot; &quot;Midwest&quot; &quot;Midwest&quot; ...
+ $ State             : chr  &quot;Ohio&quot; &quot;Ohio&quot; &quot;Ohio&quot; &quot;Ohio&quot; ...
+ $ Age               : int  2 9 73 40 63 19 30 6 60 32 ...
+ $ Married           : chr  NA NA &quot;Married&quot; &quot;Married&quot; ...
+ $ Sex               : chr  &quot;Male&quot; &quot;Male&quot; &quot;Female&quot; &quot;Female&quot; ...
+ $ Education         : chr  NA NA &quot;Some college, no degree&quot; &quot;High school&quot; ...
+ $ Race              : chr  &quot;White&quot; &quot;White&quot; &quot;White&quot; &quot;White&quot; ...
+ $ Hispanic          : int  0 0 0 0 0 0 0 1 0 0 ...
+ $ CountryOfBirthCode: int  57 57 57 362 57 57 203 57 57 57 ...
+ $ Citizenship       : chr  &quot;Citizen, Native&quot; &quot;Citizen, Native&quot; &quot;Citizen, Native&quot; &quot;Citizen, Naturalized&quot; ...
+ $ EmploymentStatus  : chr  NA NA &quot;Retired&quot; &quot;Not in Labor Force&quot; ...
+ $ Industry          : chr  NA NA NA NA ...
+ $ MetroArea         : Factor w/ 271 levels &quot;Akron, OH&quot;,&quot;Albany-Schenectady-Troy, NY&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
+D&lt;-<span class="kw">merge</span>(D, CountryMap, <span class="dt">by.x=</span><span class="st">&quot;CountryOfBirthCode&quot;</span>, <span class="dt">by.y=</span><span class="st">&quot;Code&quot;</span>, <span class="dt">all.x=</span><span class="ot">TRUE</span>)
+<span class="kw">summary</span>(D)</code></pre></div>
+<pre><code> CountryOfBirthCode MetroAreaCode   PeopleInHousehold    Region         
+ Min.   : 57.0      Min.   :10420   Min.   : 1.00     Length:131302     
+ 1st Qu.: 57.0      1st Qu.:21780   1st Qu.: 2.00     Class :character  
+ Median : 57.0      Median :34740   Median : 3.00     Mode  :character  
+ Mean   : 82.7      Mean   :35075   Mean   : 3.28                       
+ 3rd Qu.: 57.0      3rd Qu.:41860   3rd Qu.: 4.00                       
+ Max.   :555.0      Max.   :79600   Max.   :15.00                       
+                    NA's   :34238                                       
+    State                Age         Married              Sex           
+ Length:131302      Min.   : 0.0   Length:131302      Length:131302     
+ Class :character   1st Qu.:19.0   Class :character   Class :character  
+ Mode  :character   Median :39.0   Mode  :character   Mode  :character  
+                    Mean   :38.8                                        
+                    3rd Qu.:57.0                                        
+                    Max.   :85.0                                        
+                                                                        
+  Education             Race              Hispanic     Citizenship       
+ Length:131302      Length:131302      Min.   :0.000   Length:131302     
+ Class :character   Class :character   1st Qu.:0.000   Class :character  
+ Mode  :character   Mode  :character   Median :0.000   Mode  :character  
+                                       Mean   :0.139                     
+                                       3rd Qu.:0.000                     
+                                       Max.   :1.000                     
+                                                                         
+ EmploymentStatus     Industry        
+ Length:131302      Length:131302     
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+                                              MetroArea              Country      
+ New York-Northern New Jersey-Long Island, NY-NJ-PA: 5409   United States:115063  
+ Washington-Arlington-Alexandria, DC-VA-MD-WV      : 4177   Mexico       :  3921  
+ Los Angeles-Long Beach-Santa Ana, CA              : 4102   Philippines  :   839  
+ Philadelphia-Camden-Wilmington, PA-NJ-DE          : 2855   India        :   770  
+ Chicago-Naperville-Joliet, IN-IN-WI               : 2772   China        :   581  
+ (Other)                                           :77749   (Other)      :  9952  
+ NA's                                              :34238   NA's         :   176  </code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#新加上去的變數是Country</span></code></pre></div>
 <p>How many interviewees have a missing value for the new metropolitan area variable?</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
-<p><strong>§ 4.2</strong> Among all interviewees born outside of North America, which country was the most common place of birth?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
-<p><strong>§ 4.3</strong> What proportion of the interviewees from the “New York-Northern New Jersey-Long Island, NY-NJ-PA” metropolitan area have a country of birth that is not the United States?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
-<p><strong>§ 4.4</strong> Which metropolitan area has the largest number (note – not proportion) of interviewees with a country of birth in India?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
-<p>In Brazil?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
-<p>In Somalia?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#</span>
-<span class="co">#</span></code></pre></div>
+<span class="kw">summary</span>(D)</code></pre></div>
+<pre><code> CountryOfBirthCode MetroAreaCode   PeopleInHousehold    Region         
+ Min.   : 57.0      Min.   :10420   Min.   : 1.00     Length:131302     
+ 1st Qu.: 57.0      1st Qu.:21780   1st Qu.: 2.00     Class :character  
+ Median : 57.0      Median :34740   Median : 3.00     Mode  :character  
+ Mean   : 82.7      Mean   :35075   Mean   : 3.28                       
+ 3rd Qu.: 57.0      3rd Qu.:41860   3rd Qu.: 4.00                       
+ Max.   :555.0      Max.   :79600   Max.   :15.00                       
+                    NA's   :34238                                       
+    State                Age         Married              Sex           
+ Length:131302      Min.   : 0.0   Length:131302      Length:131302     
+ Class :character   1st Qu.:19.0   Class :character   Class :character  
+ Mode  :character   Median :39.0   Mode  :character   Mode  :character  
+                    Mean   :38.8                                        
+                    3rd Qu.:57.0                                        
+                    Max.   :85.0                                        
+                                                                        
+  Education             Race              Hispanic     Citizenship       
+ Length:131302      Length:131302      Min.   :0.000   Length:131302     
+ Class :character   Class :character   1st Qu.:0.000   Class :character  
+ Mode  :character   Mode  :character   Median :0.000   Mode  :character  
+                                       Mean   :0.139                     
+                                       3rd Qu.:0.000                     
+                                       Max.   :1.000                     
+                                                                         
+ EmploymentStatus     Industry        
+ Length:131302      Length:131302     
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+                                              MetroArea              Country      
+ New York-Northern New Jersey-Long Island, NY-NJ-PA: 5409   United States:115063  
+ Washington-Arlington-Alexandria, DC-VA-MD-WV      : 4177   Mexico       :  3921  
+ Los Angeles-Long Beach-Santa Ana, CA              : 4102   Philippines  :   839  
+ Philadelphia-Camden-Wilmington, PA-NJ-DE          : 2855   India        :   770  
+ Chicago-Naperville-Joliet, IN-IN-WI               : 2772   China        :   581  
+ (Other)                                           :77749   (Other)      :  9952  
+ NA's                                              :34238   NA's         :   176  </code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Country欄有176筆NA值</span></code></pre></div>
+<p><strong>§ 4.2</strong> Among all interviewees born outside of North America, which country was the most common place of birth? #答:Philippines</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">sort</span>(<span class="kw">table</span>(D<span class="op">$</span>Country),<span class="dt">decreasing=</span>T))</code></pre></div>
+<pre><code>
+United States        Mexico   Philippines         India         China   Puerto Rico 
+       115063          3921           839           770           581           518 </code></pre>
+<p><strong>§ 4.3</strong> What proportion of the interviewees from the “New York-Northern New Jersey-Long Island, NY-NJ-PA” metropolitan area have a country of birth that is not the United States? #答:1688/(1668+3736)=0.309</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(D<span class="op">$</span>MetroArea <span class="op">==</span><span class="st">&quot;New York-Northern New Jersey-Long Island, NY-NJ-PA&quot;</span>, D<span class="op">$</span>Country<span class="op">!=</span><span class="st">&quot;United States&quot;</span>)</code></pre></div>
+<pre><code>       
+        FALSE  TRUE
+  FALSE 78757 12744
+  TRUE   3736  1668</code></pre>
+<p><strong>§ 4.4</strong> Which metropolitan area has the largest number (note – not proportion) of interviewees with a country of birth in India? #答:New York-Northern New Jersey-Long Island, NY-NJ-PA</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">sort</span>(<span class="kw">tapply</span>(D<span class="op">$</span>Country <span class="op">==</span><span class="st"> &quot;India&quot;</span>, D<span class="op">$</span>MetroArea, sum, <span class="dt">na.rm=</span><span class="ot">TRUE</span>),<span class="dt">decreasing =</span> T))</code></pre></div>
+<pre><code>New York-Northern New Jersey-Long Island, NY-NJ-PA 
+                                                96 
+      Washington-Arlington-Alexandria, DC-VA-MD-WV 
+                                                50 
+          Philadelphia-Camden-Wilmington, PA-NJ-DE 
+                                                32 
+               Chicago-Naperville-Joliet, IN-IN-WI 
+                                                31 
+                        Detroit-Warren-Livonia, MI 
+                                                30 
+                Atlanta-Sandy Springs-Marietta, GA 
+                                                27 </code></pre>
+<p>In Brazil? #答:Boston-Cambridge-Quincy, MA-NH</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">sort</span>(<span class="kw">tapply</span>(D<span class="op">$</span>Country <span class="op">==</span><span class="st"> &quot;Brazil&quot;</span>, D<span class="op">$</span>MetroArea, sum, <span class="dt">na.rm=</span><span class="ot">TRUE</span>),<span class="dt">decreasing =</span> T))</code></pre></div>
+<pre><code>                    Boston-Cambridge-Quincy, MA-NH 
+                                                18 
+             Miami-Fort Lauderdale-Miami Beach, FL 
+                                                16 
+              Los Angeles-Long Beach-Santa Ana, CA 
+                                                 9 
+      Washington-Arlington-Alexandria, DC-VA-MD-WV 
+                                                 8 
+                   Bridgeport-Stamford-Norwalk, CT 
+                                                 7 
+New York-Northern New Jersey-Long Island, NY-NJ-PA 
+                                                 7 </code></pre>
+<p>In Somalia? #答:Minneapolis-St Paul-Bloomington, MN-WI</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">sort</span>(<span class="kw">tapply</span>(D<span class="op">$</span>Country <span class="op">==</span><span class="st"> &quot;Somalia&quot;</span>, D<span class="op">$</span>MetroArea, sum, <span class="dt">na.rm=</span><span class="ot">TRUE</span>),<span class="dt">decreasing =</span> T))</code></pre></div>
+<pre><code>Minneapolis-St Paul-Bloomington, MN-WI            Phoenix-Mesa-Scottsdale, AZ 
+                                    17                                      7 
+           Seattle-Tacoma-Bellevue, WA                          St. Cloud, MN 
+                                     7                                      7 
+                          Columbus, OH                           Fargo, ND-MN 
+                                     5                                      5 </code></pre>
 <p><br><br><br></p>
 </div>
 
