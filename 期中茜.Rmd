@@ -1,0 +1,105 @@
+---
+title: 如何讓自家商品獲得高評分-for novice sellers
+author: 中山大學管理學院 第20組 
+date: "`r Sys.time()`"
+output: 
+  html_document:
+    highlight: pygments
+    theme: flatly
+    css: style.css
+---
+
+```{r results='hide', message=FALSE, warning=FALSE, echo=F}
+rm(list=ls(all=T))
+knitr::opts_chunk$set(comment = NA)
+knitr::opts_knit$set(global.par = TRUE)
+par(cex=0.8)
+options(scipen=20, digits=5, width=80)
+if(!require(pacman)) install.packages("pacman")
+```
+<hr>
+
+**單元摘要：** 期中專案(OLIST)資料探索
+
+<br>
+```{r results='hide', message=FALSE, warning=FALSE}
+pacman::p_load(dplyr, ggplot2, readr, plotly)
+```
+<hr>
+
+
+<span style="font-size:24px">`r "\U1F4A1"`</span>
+讀完原始資料之後，先將資料壓縮起來，之後再從壓縮檔讀進會比較快、比較方便<br>
+```{r}
+load("data/olist.rdata")
+```
+
+<br><br><hr>
+
+
+```{r}
+PIR = left_join(P[,c(1,5)], unique(I[,c(1,3)]), by="product_id") %>% 
+      left_join(R[,2:3]) %>% 
+      group_by(product_photos_qty) %>% summarise(
+      noReview = n(),
+      avgScore = mean(review_score)) %>%
+      mutate(stdScore = scale(avgScore)) %>%   # 標準化avgScore
+      na.omit(product_photos_qty) %>% 
+      filter(noReview > 100)                   # 評論數量下限(noReview > 100)
+
+cor(PIR$avgScore, PIR$product_photos_qty)      #因樣本數大，導致相關係數不高，故先將資料標準化，再進行製圖比較
+cor.test(PIR$avgScore, PIR$product_photos_qty) #結果顯著
+
+ggplot(PIR,aes(x = product_photos_qty, y = stdScore, col = product_photos_qty)) +
+  geom_point(shape = 16, size = 5) + scale_color_gradient(low = "#FF9900", high = "#FFFF00") +
+  stat_smooth(se=FALSE, col = "#008B8B") + 
+  geom_hline(aes(yintercept=mean(stdScore)), col = "#66CDAA", linetype="dashed", size=1) +
+  scale_x_continuous(breaks=c(1:10)) + theme_light()
+
+# 商業分析：
+# 對電子商務網站而言，商品展示是基本且十分重要的功能，且普遍認為「高品質的商品圖片」以及「適當的產品資訊量」
+# 有助於提升消費者對於商品的好感度，本次分析商品圖片數量是否影響評論分數。
+
+
+
+# 建議：
+# ■ 過多或過少的商品圖片數量，可能會造成商品資訊易讀性降低或是商品資訊不清
+# ■ 一般來說，5至8張商品圖片是最合適的圖片數量
+```
+
+```{r}
+df01 = left_join(unique(I[,c(1,3)]), unique(left_join(O[,1,F], R[,1:3])[,-2])) %>%
+  group_by(product_id) %>% summarise(
+  noReview = n(),
+  avgScore = mean(review_score)) %>% 
+  left_join(P[,c(1,5)])
+df01 = df01[complete.cases(df01),]
+
+
+cor(df01$avgScore, df01$product_photos_qty)
+cor.test(df01$avgScore, df01$product_photos_qty)
+
+
+g = ggplot(df01,aes(x = product_photos_qty, y = avgScore, col = product_photos_qty)) +
+  geom_point(shape = 16, size = 1, alpha = I(1/5)) + 
+  scale_color_gradient(low = "#0DBF8C", high = "#CCCC4D") +
+  stat_smooth(se=FALSE, col = "#FFA500", size=1) + 
+  geom_hline(aes(yintercept=mean(avgScore)), col = "#66CDAA", linetype="dashed", size=1) +
+  scale_x_continuous(breaks=c(1:20)) + theme_light() +
+  ggtitle("                    product_photos_qty V.S Review Score")
+ggplotly(g)
+# 商業分析：
+# 對電子商務網站而言，商品展示是基本且十分重要的功能，
+# 且普遍認為「高品質的商品圖片」以及「適當的產品資訊量」，
+# 有助於提升消費者對於商品的好感度，本次分析商品圖片數量是否影響評論分數。
+
+
+
+# 建議：
+# ■ 過多或過少的商品圖片數量，可能會造成商品資訊易讀性降低或是商品資訊不清
+# ■ 一般來說，3至9張商品圖片是最合適的圖片數量
+```
+
+```
+
+
