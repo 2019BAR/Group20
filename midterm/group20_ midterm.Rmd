@@ -1,0 +1,264 @@
+---
+title: Olist大學-如何讓你的商品獲得高評分
+author: 中山大學管理學院 第20組
+date: "`r Sys.time()`"
+output: 
+  html_document:
+    highlight: pygments
+    theme: flatly
+    css: style.css
+---
+
+```{r results='hide', message=FALSE, warning=FALSE, echo=F}
+rm(list=ls(all=T))
+knitr::opts_chunk$set(comment = NA)
+knitr::opts_knit$set(global.par = TRUE)
+par(cex=0.8)
+options(scipen=20, digits=5, width=80)
+if(!require(pacman)) install.packages("pacman")
+```
+<hr>
+**期中專案(OLIST)資料探索** 
+<br>
+```{r results='hide', message=FALSE, warning=FALSE}
+pacman::p_load(dplyr, ggplot2, readr, plotly, googleVis,ggthemes,grid,tidytext,wordcloud2)
+```
+<hr>
+<br>
+```{r}
+load("data/olist.rdata")
+load("data/Z.rdata")
+```
+<br><br><hr>
+###【A】產品分類的銷售量是否會影響評分呢？
+```{r}
+A<-left_join(P,TPC,by="product_category_name")
+oisim<-I[,c(1,3)]
+pando<-merge(A,oisim,by="product_id",all.x=T)
+pandr<-merge(R,pando,by="order_id",all.x=T,all.y=T)
+```
+
+```{r}
+g = ggplot(segment, aes(x=totalRev, y=avgScore, col=business_segment)) +
+  geom_point(aes(size=(avgItemsSold)))
+ggplotly(g)
+#1.使用ggplot套件繪圖，X軸為總營收，Y軸為平均分數，顏色則依照產品品類做分佈
+#2.點狀圖大小為產品平均銷售量
+#3.圖片中發現有outlier為Watches
+
+```
+
+```{r}
+segment1 <- segment[segment$totalRev<100000,] #排除掉watch品項(outlier)
+g = ggplot(segment1, aes(x=totalRev, y=avgScore, col=business_segment)) +
+  geom_point(aes(size=(avgItemsSold)))+
+  geom_smooth(aes(x=totalRev, y=avgScore, col=business_segment),method = lm)
+ggplotly(g)
+```
+<p class="qiz">
+<span style="font-size:18px">`r "\U1F5FF"` 商業分析：</span><br>
+&nbsp; ■ &nbsp;排除掉watch(outlier)後，可以看到tatal Revenue和average score成正向關係。<br>
+&nbsp; ■ &nbsp;可以看出評分以及總營收的分佈，並且可藉由平均銷售(泡泡大小)能了解市場大小。<br>
+&nbsp; ■ &nbsp;可以發現在 health_beauty營收、評分最高，市場大小也不錯，games_consoles營收、評分最低，市場也小 。<br>
+</p class="qiz">
+
+<p class="wwl">
+<span style="font-size:18px">`r "\U1F4A1"` 建議：</span><br>
+&nbsp;新進賣家可以選擇從銷售量較高的產品開始販售，獲得的評分會較高。 <br>
+</p class="wwl"><br><hr>
+###【B】產品照片的數量是否會影響評論分數？
+```{r}
+df01 = left_join(unique(I[,c(1,3)]), unique(left_join(O[,1,F], R[,1:3])[,-2])) %>%
+  group_by(product_id) %>% summarise(
+  noReview = n(),
+  avgScore = mean(review_score)) %>%
+  left_join(P[,c(1,5)])
+df01 = df01[complete.cases(df01),]
+
+cor(df01$avgScore, df01$product_photos_qty)
+
+cor.test(df01$avgScore, df01$product_photos_qty)
+```
+
+```{r}
+#1.用product_id分組，算出其評論分數平均值
+#2.算出評論分數與產品圖片數量之相關性
+#3.算出評論分數與產品圖片數量之相關性
+```
+
+```{r}
+ #畫出產品圖片數量與平均分數之間的線性關係
+ggplot(df01,aes(x = product_photos_qty, y = avgScore, col = product_photos_qty)) +
+  scale_color_gradient(low = "#0DBF8C", high = "#CCCC4D") +
+  stat_smooth(se=FALSE, col = "#FFA500", size=1) + 
+  geom_hline(aes(yintercept=mean(avgScore)), col = "#66CDAA",linetype="dashed",size=1) +
+  scale_x_continuous(breaks=c(1:20)) + theme_light() +
+  ggtitle("product_photos_qty V.S Review Score")
+```
+<p class="qiz">
+<span style="font-size:18px">`r "\U1F5FF"` 商業分析：</span><br>
+&nbsp; ■ &nbsp;對電子商務網站而言，商品展示是基本且十分重要的功能，且普遍認為「高品質的商品圖片」以及「適當的產品資訊量」，有助於提升消費者對於商品的好感度，本次分析商品圖片數量是否影響評論分數。<br>
+</p class="qiz">
+
+<p class="wwl">
+<span style="font-size:18px">`r "\U1F4A1"` 建議：</span><br>
+&nbsp;製作或拍攝產品圖片時，需注意圖片所呈現的資訊是否清楚。<br>
+&nbsp;過多或過少的商品圖片數量，可能會造成商品資訊易讀性降低或是商品資訊不清。<br>
+&nbsp;一般來說，3至9張商品圖片是最合適的圖片數量。<br>
+</p class="wwl"><br><hr>
+###【C】產品名稱長度、描述長度是否會評論分數？
+
+#####【C1】產品名稱長度與評論分數關係
+```{r}
+df00 = left_join(
+  unique(I[,c(1,3)]),
+  unique(left_join(O[,1,F], R[,1:3])[,-2])
+  )
+df00 = group_by(df00, product_id) %>% summarise(
+  avgScore = mean(review_score)
+  ) %>% left_join(P[,c(1,3)])
+df00 = df00[complete.cases(df00),]
+
+ggplot(df00, aes(x = df00$product_name_lenght, y = df00$avgScore, col = product_name_lenght)) + 
+  geom_point(shape = 1, size = 1, alpha = I(1/5)) + 
+  scale_color_gradient(low = "#0DBF8C", high = "#CCCC4D") +
+  stat_smooth(method = lm, se=F, col = "#FFA500", size=1) + 
+  xlab("Product Name Lenght") + ylab("Review Score") + 
+  scale_x_continuous(limits = c(5,76)) +
+  theme_light() + ggtitle("Product Name Lenght V.S Review Score")
+
+table(df00$product_name_lenght)
+
+cor.test(df00$avgScore, df00$product_name_lenght)
+```
+<p class="qiz">
+<span style="font-size:18px">`r "\U1F5FF"` 商業分析：</span><br>
+&nbsp; ■ &nbsp;畫圖，圖看起來多集中在右上角，但原因是因為產品名長度40-60的產品數量較多，且回歸線看起來幾乎是平線，兩者看起來並無關係。<br>
+&nbsp; ■ &nbsp;接著用統計方法做測試，結果的確為不顯著。<br>
+</p class="qiz">
+
+<p class="wwl">
+<span style="font-size:18px">`r "\U1F4A1"` 建議：</span><br>
+&nbsp;產品名稱長度與產品的評分高低關係並不高，因此建議新進賣家在命名時不必太在意名稱長短，只要記得將產品重點寫妥即可。 <br>
+</p class="wwl"><br><hr>
+
+#####【C2】產品描述長度與評論分數關係
+```{r}
+df01 = left_join(
+  unique(I[,c(1,3)]),
+  unique(left_join(O[,1,F], R[,1:3])[,-2])
+  )
+df01 = group_by(df01, product_id) %>% summarise(
+  avgScore = mean(review_score)
+  ) %>% left_join(P[,c(1,4)])
+df01 = df01[complete.cases(df01),]
+
+ggplot(df01, aes(x = df01$product_description_lenght, y = df01$avgScore, col = product_description_lenght)) + 
+  geom_point(shape = 1, size = 1, alpha = I(1/5)) + 
+  scale_color_gradient(low = "#0DBF8C", high = "#CCCC4D") +
+  stat_smooth(method = lm, se=F, col = "#FFA500", size=1) + 
+  xlab("product_description_lenght") + ylab("Review Score") + 
+  scale_x_continuous(limits = c(0,4000)) +
+  theme_light() + ggtitle("product_description_lenght V.S Review Score")
+
+head(sort(table(df01$product_description_lenght), decreasing = T), 1000)
+
+cor.test(df01$avgScore, df01$product_description_lenght)
+```
+<p class="qiz">
+<span style="font-size:18px">`r "\U1F5FF"` 商業分析：</span><br>
+&nbsp; ■ &nbsp;畫圖，圖看起來多集中在左上角，但原因是因為產品描述長度1000以下的產品數量較多，但回歸線看起來有點正相關的趨勢。<br>
+&nbsp; ■ &nbsp;因此用統計方法做測試，結果為顯著。<br>
+</p class="qiz">
+
+<p class="wwl">
+<span style="font-size:18px">`r "\U1F4A1"` 建議：</span><br>
+&nbsp;產品描述長度與評分高低是呈現正相關，因此建議新進賣家可盡量將產品描述豐富詳實，以提高自身產品評價。 <br>
+</p class="wwl"><br><hr>
+###【D】商品到貨天數與評分分數的關係？
+```{r}
+df = group_by(R, order_id) %>% summarise(score = mean(review_score))
+df = merge(O, df, by='order_id', all.x=T) 
+df <- na.omit(df)
+df = mutate(df, duration=as.numeric(difftime(
+  order_delivered_customer_date, order_approved_at, units="days"))) 
+cor.test(df$score, df$duration) 
+table(df$order_status) 
+df_canceled <- df %>% filter(order_status == "canceled") 
+```
+
+```{r}
+#1.計算貨運間隔時間與評分相關性檢定
+#2.以order id為分組，算review score的平均數
+#3.將order dataset與df用order id合併
+#4.計算時間間隔，命名為duration，新增到df中
+#5.皮爾森相關檢定，結果顯著
+#6.篩出取消之訂單，有6筆訂單有送達，但最後取消，可能是已送達卻未取件(確定一下custumer_id有無重複)
+#7.刪掉取消的6筆訂單
+```
+
+```{r}
+summary(df)
+df = filter(df,df$duration >0)
+summary(df)
+sd(df$duration) 
+library(EnvStats)
+rosnerTest(df$duration)
+bench <- 15 + 1.5*IQR(df$duration)
+bench #28.5
+df_outlier = df %>% filter(df$duration > 28.5)#讓df篩出偏離值
+df = anti_join(df, df_outlier, by = "order_id")
+which.max(df$duration) #確定偏離值已篩出
+df$duration[629] #確定最大值仍小於28.5
+```
+
+```{r}
+#1.發現duration有負值，篩出duration > 0 者
+#summary(df) #to check negative value are filtered.
+#sd = 9.5126
+#篩出偏離值
+#計算偏離值
+```
+
+```{r}
+#新的df資料描述
+summary(df)#mean score = 4.24
+             #mean duration = 10.2,median = 9。
+sd(df$duration) #df = 6
+#試算正一個標準差後的分數
+df_1sd = df %>% filter(df$duration >= 15)
+mean(df_1sd$score) #一個標準差後的平均分數為3.9
+```
+
+```{r}
+#計算眾數
+df_00 = cbind(df$order_id,df$duration) %>% data.frame()
+df_00$X2 = as.integer(as.character(df_00$X2))
+df$duration = as.integer(as.character(df$duration))
+#mode 01
+names(table(df_00$X2))[table(df_00$X2)==max(table(df_00$X2))] #7
+#計算眾數的平均數
+library(dplyr)
+df_modescore = filter(df,df$duration >= 7 & df$duration < 8) 
+mean(df_modescore$score) #4.3542
+```
+
+```{r}
+score2 <- round(df$score, digits = 0)
+df <-cbind(df, score2)
+df = df[,-12]
+
+boxplot(formula=duration~score2,
+        data = df, xlab="score2", ylab = "duration", col ="lightblue")
+```
+<p class="qiz">
+<span style="font-size:18px">`r "\U1F5FF"` 商業分析：</span><br>
+&nbsp; ■ &nbsp;1.由相關檢定發現，(不論篩過偏離值與否)貨運時間間隔與滿意度評分有顯著相關，意即顧客等待時間越久，整體的滿意度會越低。<br>
+&nbsp; ■ &nbsp;2.(mode = 7)大部分時間間隔在7日左右，平均評分落在4.4分，高於平均4.24，代表多數時候，olist的訂單及貨運處理流程是令人滿意的。<br>
+&nbsp; ■ &nbsp;3.olist的出貨品質(到貨天數)是不穩定的嗎，標準差為6日左右，接近平均送達天數的一倍。而到貨天數不穩定會直接影響評論分數。<br>
+</p class="qiz">
+
+<p class="wwl">
+<span style="font-size:18px">`r "\U1F4A1"` 建議：</span><br>
+&nbsp;標準差為6日左右，代表olist貨運間隔時間並不穩定，然此將直接攸關滿意度評分，因此建議olist從訂單處理、備貨、出送貨流程優化下手，以獲得更好的顧客回饋。 <br>
+</p class="wwl"><br><hr>
